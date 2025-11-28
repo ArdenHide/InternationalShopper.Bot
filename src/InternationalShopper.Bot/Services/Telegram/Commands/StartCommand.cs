@@ -12,7 +12,7 @@ public class StartCommand(AppDbContext dbContext, ITelegramMessageService telegr
     {
         if (context.UserId == null)
         {
-            logger.LogWarning("Cannot process /start because user information is missing in update {UpdateId}.", context.Update.Id);
+            logger.LogWarning("Cannot process /start because user information is missing in update '{UpdateId}'.", context.Update.Id);
             return;
         }
 
@@ -22,12 +22,12 @@ public class StartCommand(AppDbContext dbContext, ITelegramMessageService telegr
             dbContext.TelegramUsers.Add(new TelegramUser { Id = context.UserId.Value });
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            logger.LogInformation("User {username} with ID {userId} has been saved into DB.", context.UserName, context.UserId);
+            logger.LogInformation("User '{UserName}' with ID '{UserId}' has been saved into DB.", context.UserName, context.UserId);
 
             await telegramMessageService.SendMessageAsync(context.ChatId, "You are successfully subscribed to notifications.");
             return;
         }
 
-        logger.LogDebug("User {userId} has already started the bot. Skipping registration.", context.UserId);
+        logger.LogDebug("User '{UserId}' has already started the bot. Skipping registration.", context.UserId);
     }
 }
