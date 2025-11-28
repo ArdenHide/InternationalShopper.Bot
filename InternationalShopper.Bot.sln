@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35828.75
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternationalShopper.Bot", "src\InternationalShopper.Bot\InternationalShopper.Bot.csproj", "{240AD3D3-11DD-549C-70BC-8FD5A60BEBE4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternationalShopper.Database", "src\InternationalShopper.Database\InternationalShopper.Database.csproj", "{A4FC3ACA-6BD7-4D01-AE5D-2D45E5461433}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternationalShopper.Database.Migrations.Npgsql", "src\InternationalShopper.Database.Migrations\InternationalShopper.Database.Migrations.Npgsql.csproj", "{1FDCCAAE-8E88-4FEA-BF0C-E9A584DA2250}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternationalShopper.Database.Migrations.Sqlite", "src\InternationalShopper.Database.Migrations.Sqlite\InternationalShopper.Database.Migrations.Sqlite.csproj", "{AEE4F3A7-7A57-4A9A-A61E-9EC74346E56F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{240AD3D3-11DD-549C-70BC-8FD5A60BEBE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{240AD3D3-11DD-549C-70BC-8FD5A60BEBE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{240AD3D3-11DD-549C-70BC-8FD5A60BEBE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{240AD3D3-11DD-549C-70BC-8FD5A60BEBE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4FC3ACA-6BD7-4D01-AE5D-2D45E5461433}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4FC3ACA-6BD7-4D01-AE5D-2D45E5461433}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4FC3ACA-6BD7-4D01-AE5D-2D45E5461433}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4FC3ACA-6BD7-4D01-AE5D-2D45E5461433}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FDCCAAE-8E88-4FEA-BF0C-E9A584DA2250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FDCCAAE-8E88-4FEA-BF0C-E9A584DA2250}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FDCCAAE-8E88-4FEA-BF0C-E9A584DA2250}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FDCCAAE-8E88-4FEA-BF0C-E9A584DA2250}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEE4F3A7-7A57-4A9A-A61E-9EC74346E56F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEE4F3A7-7A57-4A9A-A61E-9EC74346E56F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEE4F3A7-7A57-4A9A-A61E-9EC74346E56F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEE4F3A7-7A57-4A9A-A61E-9EC74346E56F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{240AD3D3-11DD-549C-70BC-8FD5A60BEBE4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{A4FC3ACA-6BD7-4D01-AE5D-2D45E5461433} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{1FDCCAAE-8E88-4FEA-BF0C-E9A584DA2250} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{AEE4F3A7-7A57-4A9A-A61E-9EC74346E56F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {518F61C8-9F68-47A3-B462-5D361A3AB4A5}
+	EndGlobalSection
+EndGlobal

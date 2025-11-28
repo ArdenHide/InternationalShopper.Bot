@@ -1,0 +1,13 @@
+.git
+git
+**/bin
+**/obj
+**/.vs
+**/*.user
+**/*.suo
+**/*.swp
+**/*.DS_Store
+*.mdf
+*.ldf
+node_modules
+.env
