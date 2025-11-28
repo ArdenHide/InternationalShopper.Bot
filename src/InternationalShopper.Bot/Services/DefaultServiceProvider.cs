@@ -57,6 +57,7 @@ public static class DefaultServiceProvider
         services.AddSingleton<ITelegramMessageService, TelegramMessageService>();
         services.AddScoped<ITelegramUpdateService, TelegramUpdateService>();
         services.AddScoped<ITelegramCommand, StartCommand>();
+        services.AddScoped<ITelegramCommand, ShowKeywordsCommand>();
 #if DEBUG
         services.AddSqliteDbContext();
 #else

@@ -2,7 +2,7 @@
 
 namespace InternationalShopper.Bot.Services.Telegram.Commands;
 
-public record TelegramCommandContext(Update Update, Message Message)
+public record TelegramCommandContext(Update Update, Message Message, string? CallbackData = null)
 {
     public long ChatId => Message.Chat.Id;
     public long? UserId => Message.From?.Id;

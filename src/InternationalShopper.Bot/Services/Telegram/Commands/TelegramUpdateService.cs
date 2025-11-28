@@ -17,16 +17,11 @@ public class TelegramUpdateService : ITelegramUpdateService
 
     public async Task HandleUpdateAsync(Update update, CancellationToken cancellationToken = default)
     {
-        if (update is not { Type: UpdateType.Message, Message: { } message })
-        {
-            _logger.LogDebug("Ignoring update '{UpdateType}' because it is not a message.", update.Type);
-            return;
-        }
+        var (commandName, message, callbackData) = GetCommand(update);
 
-        var commandName = TryGetCommandName(message);
-        if (commandName == null)
+        if (commandName == null || message == null)
         {
-            _logger.LogDebug("Received message without command: {Text}", message.Text);
+            _logger.LogDebug("Ignoring update '{UpdateType}' because it does not contain a supported command.", update.Type);
             return;
         }
 
@@ -38,13 +33,35 @@ public class TelegramUpdateService : ITelegramUpdateService
 
         try
         {
-            var context = new TelegramCommandContext(update, message);
+            var context = new TelegramCommandContext(update, message, callbackData);
             await command.ExecuteAsync(context, cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to execute command '{CommandName}'.", commandName);
         }
+    }
+
+    private static (string? CommandName, Message? Message, string? CallbackData) GetCommand(Update update)
+    {
+        return update.Type switch
+        {
+            UpdateType.Message when update.Message is { } message => (TryGetCommandName(message), message, null),
+            UpdateType.CallbackQuery when update.CallbackQuery is { } callbackQuery => TryGetCommandName(callbackQuery),
+            _ => (null, null, null)
+        };
+    }
+
+    private static (string? CommandName, Message? Message, string? CallbackData) TryGetCommandName(CallbackQuery callbackQuery)
+    {
+        if (string.IsNullOrWhiteSpace(callbackQuery.Data))
+            return (null, callbackQuery.Message, null);
+
+        var commandParts = callbackQuery.Data.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var commandName = commandParts.FirstOrDefault();
+        var callbackData = commandParts.Length > 1 ? commandParts[1] : string.Empty;
+
+        return (commandName, callbackQuery.Message, callbackData);
     }
 
     private static string? TryGetCommandName(Message message)
