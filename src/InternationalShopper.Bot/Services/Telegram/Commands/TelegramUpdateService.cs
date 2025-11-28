@@ -19,7 +19,7 @@ public class TelegramUpdateService : ITelegramUpdateService
     {
         if (update is not { Type: UpdateType.Message, Message: { } message })
         {
-            _logger.LogDebug("Ignoring update {UpdateType} because it is not a message.", update.Type);
+            _logger.LogDebug("Ignoring update '{UpdateType}' because it is not a message.", update.Type);
             return;
         }
 
@@ -32,7 +32,7 @@ public class TelegramUpdateService : ITelegramUpdateService
 
         if (!_commands.TryGetValue(commandName, out var command))
         {
-            _logger.LogInformation("Command {CommandName} is not registered and will be skipped.", commandName);
+            _logger.LogInformation("Command '{CommandName}' is not registered and will be skipped.", commandName);
             return;
         }
 
@@ -43,7 +43,7 @@ public class TelegramUpdateService : ITelegramUpdateService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to execute command {CommandName}.", commandName);
+            _logger.LogError(ex, "Failed to execute command '{CommandName}'.", commandName);
         }
     }
 
