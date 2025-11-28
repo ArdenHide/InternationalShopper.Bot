@@ -54,20 +54,6 @@ public class TelegramUpdateService : ITelegramUpdateService
 
         var commandEntity = message.Entities?.FirstOrDefault(entity => entity is { Offset: 0, Type: MessageEntityType.BotCommand });
 
-        if (commandEntity != null)
-        {
-            var command = message.Text.Substring(commandEntity.Offset, commandEntity.Length);
-            return NormalizeCommand(command);
-        }
-
-        if (!message.Text.StartsWith('/'))
-            return null;
-
-        var textCommand = message.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .FirstOrDefault();
-
-        return textCommand is null ? null : NormalizeCommand(textCommand);
+        return commandEntity != null ? message.Text.Substring(commandEntity.Offset, commandEntity.Length) : null;
     }
-
-    private static string NormalizeCommand(string command) => command.Split('@')[0].Trim();
 }
