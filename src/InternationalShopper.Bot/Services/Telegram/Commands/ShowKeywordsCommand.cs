@@ -1,29 +1,36 @@
-﻿using Telegram.Bot;
+﻿using System.Text;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types.ReplyMarkups;
 using InternationalShopper.Bot.Services.Reddit.Validators;
+using InternationalShopper.Bot.Services.Telegram.Commands.Options;
 
 namespace InternationalShopper.Bot.Services.Telegram.Commands;
 
 public class ShowKeywordsCommand(ITelegramBotClient botClient, ILogger<ShowKeywordsCommand> logger) : ITelegramCommand
 {
-    private const string PostOption = "post";
-    private const string CommentOption = "comment";
-    private const string WhitelistOption = "whitelist";
-    private const string BlacklistOption = "blacklist";
-
     public string Name => "/showkeywords";
 
     public async Task ExecuteAsync(TelegramCommandContext context, CancellationToken cancellationToken = default)
     {
-        if (!string.IsNullOrWhiteSpace(context.CallbackData))
+        if (string.IsNullOrWhiteSpace(context.CallbackData))
         {
-            await HandleCallbackAsync(context, cancellationToken);
+            await SendEntitySelectionAsync(context.ChatId, cancellationToken);
             return;
         }
 
-        await SendEntitySelectionAsync(context.ChatId, cancellationToken);
+        await HandleCallbackAsync(context, cancellationToken);
+    }
+
+    private async Task SendEntitySelectionAsync(long chatId, CancellationToken cancellationToken)
+    {
+        var keyboard = new InlineKeyboardMarkup([[
+            InlineKeyboardButton.WithCallbackData("Пост", BuildCallbackData(EntityOption.Post)),
+            InlineKeyboardButton.WithCallbackData("Комментарий", BuildCallbackData(EntityOption.Comment))
+        ]]);
+
+        await botClient.SendMessage(chatId, "Какой тип показать?", replyMarkup: keyboard, cancellationToken: cancellationToken);
     }
 
     private async Task HandleCallbackAsync(TelegramCommandContext context, CancellationToken cancellationToken)
@@ -46,27 +53,17 @@ public class ShowKeywordsCommand(ITelegramBotClient botClient, ILogger<ShowKeywo
         await SendKeywordsAsync(context.ChatId, callbackArguments[0], callbackArguments[1], cancellationToken);
     }
 
-    private async Task SendEntitySelectionAsync(long chatId, CancellationToken cancellationToken)
-    {
-        var keyboard = new InlineKeyboardMarkup([[
-            InlineKeyboardButton.WithCallbackData("Post", $"{Name} {PostOption}"),
-            InlineKeyboardButton.WithCallbackData("Comment", $"{Name} {CommentOption}")
-        ]]);
-
-        await botClient.SendMessage(chatId, "Какой тип сущности показать?", replyMarkup: keyboard, cancellationToken: cancellationToken);
-    }
-
     private async Task SendListTypeSelectionAsync(long chatId, string entityType, CancellationToken cancellationToken)
     {
-        if (!IsEntityTypeSupported(entityType))
+        if (!TryParseOption<EntityOption>(entityType, out var entityOption))
         {
-            logger.LogWarning("Unknown entity type '{EntityType}' in callback.", entityType);
+            logger.LogWarning("Unknown entity type '{EntityType}' in callback found while trying parse to '{NameOfEnumType}'.", entityType, nameof(EntityOption));
             return;
         }
 
         var keyboard = new InlineKeyboardMarkup([[
-            InlineKeyboardButton.WithCallbackData("Белый список", $"{Name} {entityType} {WhitelistOption}"),
-            InlineKeyboardButton.WithCallbackData("Чёрный список", $"{Name} {entityType} {BlacklistOption}")
+            InlineKeyboardButton.WithCallbackData("Белый список", BuildCallbackData(entityOption, ListOption.Whitelist)),
+            InlineKeyboardButton.WithCallbackData("Чёрный список", BuildCallbackData(entityOption, ListOption.Blacklist))
         ]]);
 
         await botClient.SendMessage(chatId, "Какой список показать?", replyMarkup: keyboard, cancellationToken: cancellationToken);
@@ -74,25 +71,31 @@ public class ShowKeywordsCommand(ITelegramBotClient botClient, ILogger<ShowKeywo
 
     private async Task SendKeywordsAsync(long chatId, string entityType, string listType, CancellationToken cancellationToken)
     {
-        var options = entityType switch
-        {
-            PostOption => KeywordValidationOptions.Post,
-            CommentOption => KeywordValidationOptions.Comment,
-            _ => null
-        };
+        var entityOptionExists = TryParseOption<EntityOption>(entityType, out var entityOption);
+        var options = entityOptionExists
+            ? entityOption switch
+            {
+                EntityOption.Post => KeywordValidationOptions.Post,
+                EntityOption.Comment => KeywordValidationOptions.Comment,
+                _ => null
+            }
+            : null;
 
         if (options == null)
         {
-            logger.LogWarning("Unknown entity type '{EntityType}' in callback.", entityType);
+            logger.LogWarning("Unknown entity type '{EntityType}' in callback found while trying parse to '{NameOfEnumType}'.", entityType, nameof(ListOption));
             return;
         }
 
-        var keywords = listType switch
-        {
-            WhitelistOption => options.WhiteList,
-            BlacklistOption => options.BlackList,
-            _ => null
-        };
+        var listOptionExists = TryParseOption<ListOption>(listType, out var listOption);
+        var keywords = listOptionExists
+            ? listOption switch
+            {
+                ListOption.Whitelist => options.WhiteList,
+                ListOption.Blacklist => options.BlackList,
+                _ => null
+            }
+            : null;
 
         if (keywords == null)
         {
@@ -100,8 +103,8 @@ public class ShowKeywordsCommand(ITelegramBotClient botClient, ILogger<ShowKeywo
             return;
         }
 
-        var listTitle = listType == WhitelistOption ? "Белый список" : "Чёрный список";
-        var entityTitle = entityType == PostOption ? "Поста" : "Комментария";
+        var listTitle = listOption == ListOption.Whitelist ? "Белый список" : "Чёрный список";
+        var entityTitle = entityOption == EntityOption.Post ? "Поста" : "Комментария";
         var keywordsText = keywords.Count == 0
             ? "Список пуст."
             : string.Join('\n', keywords.Select(keyword => $"• {keyword}"));
@@ -124,5 +127,35 @@ public class ShowKeywordsCommand(ITelegramBotClient botClient, ILogger<ShowKeywo
         }
     }
 
-    private static bool IsEntityTypeSupported(string entityType) => entityType is PostOption or CommentOption;
+    private static bool TryParseOption<TOption>(string? value, out TOption option, params TOption[] allowedValues)
+        where TOption : struct, Enum
+    {
+        option = default;
+
+        if (!Enum.TryParse<TOption>(value, out var parsed))
+            return false;
+
+        if (!allowedValues.Contains(parsed))
+            return Assign(default, out option, false);
+
+        return Assign(parsed, out option, true);
+    }
+
+    private static bool Assign<T>(T value, out T option, bool result)
+    {
+        option = value;
+        return result;
+    }
+
+    private string BuildCallbackData(EntityOption entityOption, ListOption? listOption = null)
+    {
+        var callbackBuilder = new StringBuilder()
+            .Append(Name)
+            .Append($" {entityOption.ToString()}");
+
+        if (listOption != null)
+            callbackBuilder.Append($" {listOption.ToString()}");
+
+        return callbackBuilder.ToString();
+    }
 }
