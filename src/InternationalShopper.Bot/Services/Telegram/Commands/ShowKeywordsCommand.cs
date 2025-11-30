@@ -10,7 +10,7 @@ namespace InternationalShopper.Bot.Services.Telegram.Commands;
 
 public class ShowKeywordsCommand(ITelegramBotClient botClient, ILogger<ShowKeywordsCommand> logger) : ITelegramCommand
 {
-    public string Name => "/showkeywords";
+    public string Name => "/show_keywords";
 
     public async Task ExecuteAsync(TelegramCommandContext context, CancellationToken cancellationToken = default)
     {
