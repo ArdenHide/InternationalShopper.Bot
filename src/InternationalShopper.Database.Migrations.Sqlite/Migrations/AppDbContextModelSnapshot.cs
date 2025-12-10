@@ -30,6 +30,34 @@ namespace InternationalShopper.Database.Migrations
                     b.ToTable("BotSettings");
                 });
 
+            modelBuilder.Entity("InternationalShopper.Database.Models.Keyword", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ListType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("TrackedCountryId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TrackedCountryId");
+
+                    b.ToTable("Keywords");
+                });
+
             modelBuilder.Entity("InternationalShopper.Database.Models.TelegramUser", b =>
                 {
                     b.Property<long>("Id")
@@ -38,6 +66,58 @@ namespace InternationalShopper.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TelegramUsers");
+                });
+
+            modelBuilder.Entity("InternationalShopper.Database.Models.TrackedCountry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("TelegramUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TelegramUserId");
+
+                    b.ToTable("TrackedCountries");
+                });
+
+            modelBuilder.Entity("InternationalShopper.Database.Models.Keyword", b =>
+                {
+                    b.HasOne("InternationalShopper.Database.Models.TrackedCountry", "TrackedCountry")
+                        .WithMany("Keywords")
+                        .HasForeignKey("TrackedCountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TrackedCountry");
+                });
+
+            modelBuilder.Entity("InternationalShopper.Database.Models.TrackedCountry", b =>
+                {
+                    b.HasOne("InternationalShopper.Database.Models.TelegramUser", "TelegramUser")
+                        .WithMany("TrackedCountries")
+                        .HasForeignKey("TelegramUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TelegramUser");
+                });
+
+            modelBuilder.Entity("InternationalShopper.Database.Models.TelegramUser", b =>
+                {
+                    b.Navigation("TrackedCountries");
+                });
+
+            modelBuilder.Entity("InternationalShopper.Database.Models.TrackedCountry", b =>
+                {
+                    b.Navigation("Keywords");
                 });
 #pragma warning restore 612, 618
         }
